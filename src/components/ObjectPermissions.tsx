@@ -115,7 +115,7 @@ const ObjectPermissions: React.FC<ObjectPermissionsProps> = ({
                     <div className="flex items-start space-x-3">
                       <Checkbox
                         checked={permissions[permType.key] || false}
-                        onChange={(checked) => handlePermissionChange(permType.key, checked)}
+                        onCheckedChange={(checked) => handlePermissionChange(permType.key, !!checked)}
                         className="mt-1"
                       />
                       <div className="flex-1">
