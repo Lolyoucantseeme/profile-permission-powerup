@@ -1,0 +1,126 @@
+<template>
+    <lightning-card title="Salesforce Permission Manager" class="slds-var-m-around_medium">
+        <p slot="footer" class="slds-text-body_small slds-var-p-horizontal_small">
+            A comprehensive tool to manage Profile permissions for Objects and Fields.
+        </p>
+
+        <div class.bind="isLoading ? 'slds-is-relative slds-p-around_large' : 'slds-hide'">
+            <lightning-spinner alternative-text="Loading..." variant="brand" size="large"></lightning-spinner>
+        </div>
+
+        <div class.bind="isLoading ? 'slds-hide' : ''">
+            <!-- Status Overview -->
+            <div class="slds-grid slds-gutters slds-var-m-bottom_medium slds-var-p-horizontal_small">
+                <div class="slds-col slds-size_1-of-4">
+                    <lightning-card title="Selected Profiles" icon-name="standard:user">
+                        <div class="slds-var-p-horizontal_medium slds-text-heading_large">{selectedProfilesCount}</div>
+                    </lightning-card>
+                </div>
+                <div class="slds-col slds-size_1-of-4">
+                    <lightning-card title="Selected Object" icon-name="standard:custom_permission">
+                        <div class="slds-var-p-horizontal_medium slds-text-heading_large">{selectedObjectCount}</div>
+                    </lightning-card>
+                </div>
+                <div class="slds-col slds-size_1-of-4">
+                    <lightning-card title="Pending Changes" icon-name="standard:task2">
+                        <div class="slds-var-p-horizontal_medium slds-text-heading_large">{totalPendingChanges}</div>
+                    </lightning-card>
+                </div>
+                <div class="slds-col slds-size_1-of-4">
+                    <lightning-card title="Status" icon-name="standard:feed">
+                        <div class="slds-var-p-horizontal_medium slds-text-heading_medium">
+                            <template if:true={isLoading}>Processing...</template>
+                            <template if:false={isLoading}>Ready</template>
+                        </div>
+                    </lightning-card>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <lightning-layout multiple-rows="true" class="slds-var-p-horizontal_small">
+                <!-- Left Column: Profile Selector -->
+                <lightning-layout-item size="4" padding="around-small">
+                    <!-- Placeholder for c-profile-selector-lwc -->
+                    <c-profile-selector-lwc
+                        profiles={allProfiles}
+                        onprofileselectionchange={handleProfileSelectionChange}
+                        selected-profile-ids={selectedProfiles}>
+                    </c-profile-selector-lwc>
+                </lightning-layout-item>
+
+                <!-- Right Column: Permission Configuration -->
+                <lightning-layout-item size="8" padding="around-small">
+                    <lightning-card title="Permission Configuration">
+                        <lightning-tabset active-tab-value={currentTab}>
+                            <lightning-tab label="Object Permissions" value="objectPermissionsTab" onactive={handleTabActive}>
+                                <!-- Placeholder for c-object-permission-editor-lwc -->
+                                <c-object-permission-editor-lwc
+                                    sobjects={allSObjects}
+                                    selected-sobject-api-name={selectedObjectApiName}
+                                    object-permissions={objectPermissions}
+                                    onobjectchange={handleObjectChange}
+                                    onobjectpermissionschange={handleObjectPermissionsChange}
+                                    disabled={isObjectEditorDisabled}>
+                                </c-object-permission-editor-lwc>
+                            </lightning-tab>
+                            <lightning-tab label="Field Permissions" value="fieldPermissionsTab" onactive={handleTabActive}>
+                                <!-- Placeholder for c-field-permission-editor-lwc -->
+                                 <c-field-permission-editor-lwc
+                                    selected-sobject-api-name={selectedObjectApiName}
+                                    field-permissions={fieldPermissions}
+                                    onfieldpermissionschange={handleFieldPermissionsChange}
+                                    disabled={isFieldEditorDisabled}>
+                                </c-field-permission-editor-lwc>
+                            </lightning-tab>
+                            <lightning-tab label="Preview Changes" value="previewChangesTab" onactive={handleTabActive}>
+                                <!-- Placeholder for c-permission-preview-lwc -->
+                                <c-permission-preview-lwc
+                                    selected-profiles={selectedProfiles}
+                                    selected-object-api-name={selectedObjectApiName}
+                                    object-permissions={objectPermissions}
+                                    field-permissions={fieldPermissions}
+                                    all-profiles-map={allProfilesMap}>
+                                </c-permission-preview-lwc>
+                            </lightning-tab>
+                        </lightning-tabset>
+                    </lightning-card>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <!-- Action Bar -->
+            <div class="slds-var-p-horizontal_small slds-var-m-top_medium">
+                <lightning-card title="Actions">
+                    <div class="slds-var-p-horizontal_medium slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                        <div>
+                            <lightning-badge label={selectedProfilesBadgeLabel} class="slds-var-m-right_small"></lightning-badge>
+                            <lightning-badge label={pendingChangesBadgeLabel}></lightning-badge>
+                        </div>
+                        <div>
+                            <lightning-button
+                                label="Reset All"
+                                onclick={handleResetAll}
+                                class="slds-var-m-right_small"
+                                disabled={isLoading}>
+                            </lightning-button>
+                            <lightning-button
+                                label="Apply Permissions"
+                                variant="brand"
+                                onclick={handleApplyPermissions}
+                                disabled={isApplyDisabled}>
+                            </lightning-button>
+                        </div>
+                    </div>
+                </lightning-card>
+            </div>
+
+            <!-- Help Alert -->
+            <div class="slds-var-p-horizontal_small slds-var-m-top_medium">
+                 <lightning-alert status="info" variant="info">
+                    <h2 class="slds-text-heading_small">Pro Tip!</h2>
+                    <p>Use the 'Preview Changes' tab to review all modifications before applying. This helps prevent unintended permission updates.</p>
+                </lightning-alert>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

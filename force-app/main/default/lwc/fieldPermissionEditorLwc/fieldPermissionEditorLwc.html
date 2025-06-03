@@ -1,0 +1,120 @@
+<template>
+    <lightning-card icon-name="standard:custom_permission_dependency">
+        <span slot="title" class="slds-card__header-title">
+            <template if:true={hasSelectedObject}>
+                Field Permissions for: {selectedObjectApiName}
+            </template>
+            <template if:false={hasSelectedObject}>
+                Field Permissions
+            </template>
+        </span>
+
+        <div class="slds-var-p-horizontal_small">
+            <template if:false={hasSelectedObject}>
+                <div class="slds-align_absolute-center slds-var-p-vertical_medium slds-text-color_weak">
+                    <template if:true={disabled}>
+                        Select profiles and an object to enable field permission configuration.
+                    </template>
+                    <template if:false={disabled}>
+                        Select an SObject first to configure its field-level permissions.
+                    </template>
+                </div>
+            </template>
+
+            <template if:true={hasSelectedObject}>
+                <lightning-input
+                    label="Search Fields"
+                    type="search"
+                    value={searchTerm}
+                    onchange={handleSearchChange}
+                    placeholder="Search by label or API name..."
+                    class="slds-var-m-bottom_small"
+                    disabled={disabledOrLoading}>
+                </lightning-input>
+
+                <div class="slds-grid slds-grid_align-spread slds-var-m-bottom_small">
+                    <div class="slds-button-group">
+                        <lightning-button
+                            label="Grant Read All (Filtered)"
+                            onclick={handleBulkGrantReadAllFiltered}
+                            disabled={disabledOrLoadingOrNoFilteredFields}
+                            class="slds-var-m-right_x-small">
+                        </lightning-button>
+                        <lightning-button
+                            label="Grant Edit All (Filtered)"
+                            onclick={handleBulkGrantEditAllFiltered}
+                            disabled={disabledOrLoadingOrNoFilteredFields}
+                            class="slds-var-m-right_x-small">
+                        </lightning-button>
+                        <lightning-button
+                            label="Clear All Configured (Filtered)"
+                            onclick={handleBulkClearAllFiltered}
+                            disabled={disabledOrLoadingOrNoFilteredFieldsOrNoConfigured}>
+                        </lightning-button>
+                    </div>
+                    <lightning-badge label={configuredFieldsBadge}></lightning-badge>
+                </div>
+                
+                <template if:true={isLoadingFields}>
+                    <div class="slds-align_absolute-center slds-var-p-vertical_medium">
+                        <lightning-spinner alternative-text="Loading fields..." size="medium"></lightning-spinner>
+                    </div>
+                </template>
+                <template if:false={isLoadingFields}>
+                    <template if:true={hasFilteredFields}>
+                        <div class="slds-scrollable_y" style="max-height:400px;">
+                            <ul class="slds-list_vertical slds-has-dividers_around-space">
+                                <template for:each={filteredFields} for:item="field">
+                                    <li key={field.apiName} class="slds-item slds-var-p-vertical_small slds-var-p-horizontal_x-small slds-border_bottom">
+                                        <lightning-layout vertical-align="center">
+                                            <lightning-layout-item size="6" padding="around-xx-small">
+                                                <div class="slds-truncate" title={field.label}>
+                                                    <strong>{field.label}</strong>
+                                                </div>
+                                                <div class="slds-text-body_small slds-text-color_weak slds-truncate" title={field.apiName}>
+                                                    {field.apiName}
+                                                </div>
+                                                <div class="slds-text-body_small slds-text-color_weak">
+                                                    Type: {field.type}
+                                                    <lightning-badge if:true={field.isCustom} label="Custom" class="slds-var-m-left_x-small"></lightning-badge>
+                                                    <lightning-badge if:true={field.isRequired} label="Required" class="slds-var-m-left_x-small" variant="inverse"></lightning-badge>
+                                                </div>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="3" padding="around-xx-small" class="slds-text-align_center">
+                                                <lightning-input
+                                                    type="checkbox"
+                                                    label="Read"
+                                                    checked={field.permissions.read}
+                                                    data-fieldapiname={field.apiName}
+                                                    data-permtype="read"
+                                                    onchange={handleFieldPermissionChange}
+                                                    disabled={disabledOrLoading}>
+                                                </lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="3" padding="around-xx-small" class="slds-text-align_center">
+                                                <lightning-input
+                                                    type="checkbox"
+                                                    label="Edit"
+                                                    checked={field.permissions.edit}
+                                                    data-fieldapiname={field.apiName}
+                                                    data-permtype="edit"
+                                                    onchange={handleFieldPermissionChange}
+                                                    disabled={disabledOrLoading}>
+                                                </lightning-input>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                    <template if:false={hasFilteredFields}>
+                        <div class="slds-align_absolute-center slds-var-p-vertical_medium slds-text-color_weak">
+                            No fields found matching your search criteria for {selectedObjectApiName}.
+                        </div>
+                    </template>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

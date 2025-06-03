@@ -1,0 +1,65 @@
+<template>
+    <lightning-card title="Select Profiles" icon-name="standard:user_role">
+        <div class="slds-var-p-horizontal_small slds-var-m-bottom_small">
+            <lightning-input
+                label="Search Profiles"
+                type="search"
+                value={searchTerm}
+                onchange={handleSearchChange}
+                placeholder="Search by name or license..."
+            ></lightning-input>
+        </div>
+
+        <div class="slds-var-p-horizontal_small slds-var-m-bottom_small slds-grid slds-grid_align-spread">
+            <div>
+                <lightning-button
+                    label="Select All (Filtered)"
+                    onclick={handleSelectAllFiltered}
+                    class="slds-var-m-right_x-small"
+                    disabled={isNoProfilesFound}
+                ></lightning-button>
+                <lightning-button
+                    label="Clear All Selected"
+                    onclick={handleClearAllSelected}
+                    disabled={isNoProfilesSelected}
+                ></lightning-button>
+            </div>
+            <div class="slds-align-middle">
+                <lightning-badge label={selectedProfilesBadge}></lightning-badge>
+            </div>
+        </div>
+
+        <div class="slds-var-p-horizontal_small slds-scrollable_y" style="max-height: 300px;">
+            <template if:true={hasFilteredProfiles}>
+                <ul class="slds-list_vertical slds-has-dividers_around-space">
+                    <template for:each={filteredProfiles} for:item="profile">
+                        <li key={profile.Id} class="slds-item slds-var-p-vertical_xx-small">
+                            <lightning-input
+                                type="checkbox"
+                                label={profile.Name}
+                                value={profile.Id}
+                                checked={profile.isSelected}
+                                onchange={handleProfileToggle}
+                                class="slds-var-m-right_small"
+                            ></lightning-input>
+                            <span class="slds-text-body_small slds-text-color_weak">
+                                License: {profile.LicenseName} <br/>
+                                <template if:true={profile.Description}>
+                                    Description: {profile.Description}
+                                </template>
+                            </span>
+                        </li>
+                    </template>
+                </ul>
+            </template>
+            <template if:false={hasFilteredProfiles}>
+                <div class="slds-align_absolute-center slds-var-p-vertical_medium">
+                    No profiles found matching your criteria.
+                </div>
+            </template>
+        </div>
+        <div slot="footer">
+             Total Profiles: {allProfiles.length}
+        </div>
+    </lightning-card>
+</template>

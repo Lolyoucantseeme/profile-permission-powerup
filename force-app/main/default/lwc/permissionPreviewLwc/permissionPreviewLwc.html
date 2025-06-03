@@ -1,0 +1,80 @@
+<template>
+    <div class="slds-var-p-around_small">
+        <template if:true={showNoProfilesMessage}>
+            <div class="slds-align_absolute-center slds-var-p-vertical_medium slds-text-color_weak">
+                No Profiles selected. Please select one or more profiles to see a preview.
+            </div>
+        </template>
+        <template else:if={showNoObjectMessage}>
+            <div class="slds-align_absolute-center slds-var-p-vertical_medium slds-text-color_weak">
+                No SObject selected. Please select an SObject to see a preview of permission changes.
+            </div>
+        </template>
+        <template else:if={showNoChangesMessage}>
+            <div class="slds-align_absolute-center slds-var-p-vertical_medium slds-text-color_weak">
+                No permission changes have been configured yet.
+            </div>
+        </template>
+
+        <template if:true={showPreview}>
+            <lightning-card title="Permission Change Summary" icon-name="utility:summarydetail" class="slds-var-m-bottom_medium">
+                <div class="slds-var-p-horizontal_medium slds-grid slds-wrap">
+                    <div class="slds-col slds-size_1-of-1 slds-var-m-bottom_small">
+                        <lightning-icon icon-name="standard:user_role" size="small" class="slds-var-m-right_x-small"></lightning-icon>
+                        <strong>{selectedProfiles.length}</strong> Profile(s) selected.
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-var-m-bottom_small">
+                        <lightning-icon icon-name="standard:custom_permission" size="small" class="slds-var-m-right_x-small"></lightning-icon>
+                        <strong>{activeObjectPermissionsCount}</strong> Object Permission(s) for <strong>{selectedObjectApiName}</strong>.
+                    </div>
+                    <div class="slds-col slds-size_1-of-1">
+                        <lightning-icon icon-name="standard:custom_permission_dependency" size="small" class="slds-var-m-right_x-small"></lightning-icon>
+                        <strong>{activeFieldPermissionsCount}</strong> Field Permission(s) for <strong>{selectedObjectApiName}</strong>.
+                    </div>
+                </div>
+            </lightning-card>
+
+            <lightning-card title="Affected Profiles" icon-name="standard:groups" class="slds-var-m-bottom_medium">
+                <div class="slds-var-p-horizontal_medium">
+                    <template for:each={selectedProfileDetails} for:item="profile">
+                        <lightning-badge key={profile.Id} label={profile.Name} class="slds-var-m-right_xx-small slds-var-m-bottom_xx-small"></lightning-badge>
+                    </template>
+                </div>
+            </lightning-card>
+
+            <template if:true={hasActiveObjectPermissions}>
+                <lightning-card title="Object Permissions: {selectedObjectApiName}" icon-name="standard:record_lookup" class="slds-var-m-bottom_medium">
+                    <ul class="slds-list_horizontal slds-wrap slds-var-p-horizontal_medium">
+                        <template for:each={activeObjectPermissions} for:item="op">
+                            <li key={op.key} class="slds-var-m-right_medium slds-var-m-bottom_small slds-list__item">
+                                <lightning-icon icon-name={op.iconName} size="small" class="slds-var-m-right_x-small"></lightning-icon>
+                                {op.label}
+                            </li>
+                        </template>
+                    </ul>
+                </lightning-card>
+            </template>
+
+            <template if:true={hasActiveFieldPermissions}>
+                <lightning-card title="Field Permissions: {selectedObjectApiName}" icon-name="standard:document_preview" class="slds-var-m-bottom_medium">
+                    <div class="slds-scrollable_y" style="max-height: 250px;">
+                        <ul class="slds-list_vertical slds-var-p-horizontal_medium">
+                            <template for:each={activeFieldPermissionsList} for:item="fp">
+                                <li key={fp.fieldName} class="slds-var-p-vertical_xx-small slds-border_bottom">
+                                    <strong>{fp.fieldName}:</strong>
+                                    <lightning-badge if:true={fp.read} label="Read" class="slds-var-m-left_small"></lightning-badge>
+                                    <lightning-badge if:true={fp.edit} label="Edit" class="slds-var-m-left_x-small" variant="warning"></lightning-badge>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </lightning-card>
+            </template>
+
+            <lightning-alert status="warning" variant="warning" class="slds-var-m-top_medium">
+                <h2 class="slds-text-heading_small">Important Notice</h2>
+                <p>You are about to apply these permission changes to <strong>{selectedProfiles.length}</strong> profile(s). Please review carefully before proceeding. These changes can significantly impact user access.</p>
+            </lightning-alert>
+        </template>
+    </div>
+</template>
